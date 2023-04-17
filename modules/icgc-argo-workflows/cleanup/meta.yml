@@ -8,10 +8,6 @@ keywords:
 tools:
   - "cleanup":
       description: "cleanup is a in-house tool to cleanup working directories at the end of the workflow."
-      homepage: ""
-      documentation: ""
-      tool_dev_url: ""
-      doi: ""
       licence: ["MIT"]
 
 input:

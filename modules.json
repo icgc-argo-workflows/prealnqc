@@ -7,7 +7,7 @@
                 "icgc-argo-workflows": {
                     "cleanup": {
                         "branch": "main",
-                        "git_sha": "725eef20d498f3e60ba9fd0469d7c73bf5614734",
+                        "git_sha": "517b0a82ed697564891e18ff5dba35a70f9da225",
                         "installed_by": ["modules"]
                     },
                     "payload/qcmetrics": {

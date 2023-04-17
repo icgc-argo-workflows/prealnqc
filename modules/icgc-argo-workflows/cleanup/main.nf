@@ -2,7 +2,10 @@
 process CLEANUP {
     label 'process_low'
  
-    container "${ task.ext.container ?: 'ubuntu' }:${ task.ext.container_version ?: '18.04' }"
+    conda "conda-forge::coreutils=9.1"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/ubuntu:20.04' :
+        'ubuntu:20.04' }"
 
     input:
     path files_to_delete  // more accurately, other non-hidden files in the same folder will be deleted as well
@@ -15,7 +18,7 @@ process CLEANUP {
     task.ext.when == null || task.ext.when
 
     script:
-    def VERSION = task.ext.container_version ?: '18.04'
+    def VERSION = '20.04'
     """
     set -euxo pipefail
 
