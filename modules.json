@@ -1,0 +1,102 @@
+{
+    "name": "icgc-argo-workflows/prealnqc",
+    "homePage": "https://github.com/icgc-argo-workflows/prealnqc",
+    "repos": {
+        "https://github.com/icgc-argo-workflows/argo-modules.git": {
+            "modules": {
+                "icgc-argo-workflows": {
+                    "cleanup": {
+                        "branch": "main",
+                        "git_sha": "517b0a82ed697564891e18ff5dba35a70f9da225",
+                        "installed_by": ["modules"]
+                    },
+                    "payload/qcmetrics": {
+                        "branch": "add-payload_qc",
+                        "git_sha": "e77dfd3f5a27c355ed42633a896d868a00f89ecf",
+                        "installed_by": ["modules"]
+                    },
+                    "prep/sample": {
+                        "branch": "main",
+                        "git_sha": "06a2ac189b58d53ee8120ffc12aff485849c9a7e",
+                        "installed_by": ["stage_input"]
+                    },
+                    "score/download": {
+                        "branch": "main",
+                        "git_sha": "f5e2d027a4f886a8702f5c4be825801513b578d0",
+                        "installed_by": ["song_score_download"]
+                    },
+                    "score/upload": {
+                        "branch": "main",
+                        "git_sha": "f5e2d027a4f886a8702f5c4be825801513b578d0",
+                        "installed_by": ["song_score_upload"]
+                    },
+                    "song/get": {
+                        "branch": "main",
+                        "git_sha": "f5e2d027a4f886a8702f5c4be825801513b578d0",
+                        "installed_by": ["song_score_download"]
+                    },
+                    "song/manifest": {
+                        "branch": "main",
+                        "git_sha": "f5e2d027a4f886a8702f5c4be825801513b578d0",
+                        "installed_by": ["song_score_upload"]
+                    },
+                    "song/publish": {
+                        "branch": "main",
+                        "git_sha": "f5e2d027a4f886a8702f5c4be825801513b578d0",
+                        "installed_by": ["song_score_upload"]
+                    },
+                    "song/submit": {
+                        "branch": "main",
+                        "git_sha": "f5e2d027a4f886a8702f5c4be825801513b578d0",
+                        "installed_by": ["song_score_upload"]
+                    }
+                }
+            },
+            "subworkflows": {
+                "icgc-argo-workflows": {
+                    "song_score_download": {
+                        "branch": "main",
+                        "git_sha": "92aa620385099e94401c22b8633cc55ed34ca10e",
+                        "installed_by": ["stage_input"]
+                    },
+                    "song_score_upload": {
+                        "branch": "main",
+                        "git_sha": "92aa620385099e94401c22b8633cc55ed34ca10e",
+                        "installed_by": ["subworkflows"]
+                    },
+                    "stage_input": {
+                        "branch": "main",
+                        "git_sha": "fd02dbcc7dc4e922dc60004b297ac11833154c2e",
+                        "installed_by": ["subworkflows"]
+                    }
+                }
+            }
+        },
+        "https://github.com/nf-core/modules.git": {
+            "modules": {
+                "nf-core": {
+                    "custom/dumpsoftwareversions": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "cutadapt": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "fastqc": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "multiqc": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    }
+                }
+            }
+        }
+    }
+}
