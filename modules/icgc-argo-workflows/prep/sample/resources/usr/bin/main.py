@@ -151,6 +151,11 @@ def generate_fastqs_from_bam(bam, readgroups, cpu=None, sample_sheet=dict(), stu
         else:  # ignore lane bam without read group information in metadata, just produce a warning message here
             print("WARNING: Ignore lane BAM '%s' (split from input BAM '%s') that has no corresponding read group in the metadata" %
                   (lane_bam, os.path.basename(bam)), file=sys.stderr)
+    for lane_bam in glob.glob(os.path.join(os.getcwd(), bam_base, "*.bam")):
+      cmd = f"rm %s" % (lane_bam)
+      stdout, stderr, returncode = run_cmd(cmd)
+      if returncode:
+        sys.exit(f"Error: 'Deleting file {lane_bam}' failed.\nStdout: {stdout}\nStderr: {stderr}\n")      
 
     return sample_sheet    
 

@@ -156,6 +156,9 @@ workflow PREALNQC {
       .set { ch_files_to_remove2 }
 
       ch_files_to_remove = Channel.empty()
+      ch_files_to_remove = ch_files_to_remove.mix(STAGE_INPUT.out.input_files)
+      ch_files_to_remove = ch_files_to_remove.mix(MULTIQC.out.report)
+      ch_files_to_remove = ch_files_to_remove.mix(MULTIQC.out.data)
       ch_files_to_remove = ch_files_to_remove.mix(ch_files_to_remove1)
       ch_files_to_remove = ch_files_to_remove.mix(ch_files_to_remove2)
       CLEANUP(ch_files_to_remove.unique().collect(), SONG_SCORE_UPLOAD.out.analysis_id)

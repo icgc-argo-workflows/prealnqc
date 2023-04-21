@@ -28,7 +28,10 @@ output:
       description: SONG metadata JSON file for downloaded files
   - sample_files:
       type: file
-      description: List of downloaded files
+      description: channel with metadata and list of downloaded/converted files
+  - input_files:
+    type: file
+    description: List of downloaded files
   - versions:
       type: file
       description: File containing software versions

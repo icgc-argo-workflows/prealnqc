@@ -66,5 +66,6 @@ workflow STAGE_INPUT {
     emit:
     analysis_meta = ch_metadata              // channel: [ val(meta), metadata ] 
     sample_files  = ch_input_sample          // channel: [ val(meta), [ files ] ]
+    input_files = SONG_SCORE_DOWNLOAD.out.files // channel: [files]
     versions = ch_versions                   // channel: [ versions.yml ]
 }

@@ -17,7 +17,7 @@
                     },
                     "prep/sample": {
                         "branch": "main",
-                        "git_sha": "6a05e21306d8da8feaa34bfc184d9412cbc7d535",
+                        "git_sha": "06a2ac189b58d53ee8120ffc12aff485849c9a7e",
                         "installed_by": ["stage_input"]
                     },
                     "score/download": {
@@ -66,7 +66,7 @@
                     },
                     "stage_input": {
                         "branch": "main",
-                        "git_sha": "6a05e21306d8da8feaa34bfc184d9412cbc7d535",
+                        "git_sha": "fd02dbcc7dc4e922dc60004b297ac11833154c2e",
                         "installed_by": ["subworkflows"]
                     }
                 }
