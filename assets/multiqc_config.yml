@@ -19,6 +19,3 @@ run_modules:
     - cutadapt
     - fastqc
 
-extra_fn_clean_exts:
-    - '_1'
-    - '_2'
