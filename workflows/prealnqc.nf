@@ -7,22 +7,12 @@
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 
 // Validate input parameters
-WorkflowPrealnqc.initialise(params, log)
+// WorkflowPrealnqc.initialise(params, log)
 
-// Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-// def checkPathParamList = [ params.input, params.multiqc_config, params.fasta ]
-// for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
+def checkPathParamList = [ params.input, params.multiqc_config]
 
-// Check mandatory parameters
-if ( params.local_mode ) {
-  if (params.input) {
-    ch_input = file(params.input, checkIfExists: true)
-  } 
-  else { exit 1, 'Input samplesheet must be specified for local mode!' }
-} else if (params.study_id && params.analysis_id) {
-  ch_input = [params.study_id, params.analysis_id]
-} else { exit 1, 'study_id & analysis_id must be specified for rdpc mode!' }
+for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,15 +64,22 @@ workflow PREALNQC {
     
     // Read in samplesheet, validate and stage input files
     if (params.local_mode) {
-      ch_input_sample = INPUT_CHECK (ch_input).reads
+      if (params.input) {
+        ch_input = Channel.fromPath(params.input)
+        ch_input_sample = INPUT_CHECK (ch_input).reads
+      } 
+      else { exit 1, 'Input samplesheet must be specified for local mode!' }
+    } else if (params.study_id && params.analysis_ids) {
+      ch_study = Channel.of(params.study_id)
+      ch_analysis_ids = Channel.fromList(params.analysis_ids.split(',') as List)
+      ch_input = ch_study.combine(ch_analysis_ids)
 
-    } else {
       STAGE_INPUT(ch_input)
       ch_input_sample = STAGE_INPUT.out.sample_files
       ch_metadata = STAGE_INPUT.out.meta_analysis
       ch_versions = ch_versions.mix(STAGE_INPUT.out.versions)
     
-    } 
+    } else { exit 1, 'study_id & analysis_ids must be specified for rdpc mode!' }
 
 
     // MODULE: Run FastQC
@@ -132,7 +129,6 @@ workflow PREALNQC {
       ch_meta_metadata.join(ch_meta_qcfiles).join(MULTIQC_PARSE.out.multiqc_json)
       .set { ch_metadata_upload }
 
-      ch_metadata_upload.view()
       // // generate payload
       PAYLOAD_QCMETRICS(
         ch_metadata_upload, '', '', CUSTOM_DUMPSOFTWAREVERSIONS.out.yml.collect()) 
