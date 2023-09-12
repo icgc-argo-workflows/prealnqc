@@ -46,6 +46,7 @@ include { PAYLOAD_QCMETRICS } from '../modules/icgc-argo-workflows/payload/qcmet
 include { SONG_SCORE_UPLOAD } from '../subworkflows/icgc-argo-workflows/song_score_upload/main' 
 include { STAGE_INPUT       } from '../subworkflows/icgc-argo-workflows/stage_input/main'
 include { INPUT_CHECK       } from '../subworkflows/local/input_check'
+include { MULTIQC_PARSE     } from '../modules/local/multiqc_parse'
 include { CLEANUP           } from '../modules/icgc-argo-workflows/cleanup/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,7 +79,7 @@ workflow PREALNQC {
     } else {
       STAGE_INPUT(ch_input)
       ch_input_sample = STAGE_INPUT.out.sample_files
-      ch_metadata = STAGE_INPUT.out.analysis_meta
+      ch_metadata = STAGE_INPUT.out.meta_analysis
       ch_versions = ch_versions.mix(STAGE_INPUT.out.versions)
     
     } 
@@ -109,15 +110,15 @@ workflow PREALNQC {
     )
     ch_versions = ch_versions.mix(MULTIQC.out.versions)
     
-    // Match the QC files with the metadata info
+    // Group the QC files by sampleId
     ch_qc_files
+    .transpose()
     .map { meta, files -> [[id: meta.sample, study_id: meta.study_id], files] }
     .groupTuple()
-    .map { meta, files -> meta }
-    .set{ ch_meta }
+    .set{ ch_meta_qcfiles }
 
-    ch_meta.combine(ch_multiqc_files.concat(MULTIQC.out.report, MULTIQC.out.data).collect().toList())
-    .set {ch_qc_files_sample}
+    // Parse the multiqc data
+    MULTIQC_PARSE (ch_meta_qcfiles, MULTIQC.out.data.collect())
 
     // Collect Software Versions
     CUSTOM_DUMPSOFTWAREVERSIONS (ch_versions.unique{ it.text }.collectFile(name: 'collated_versions.yml'))
@@ -126,42 +127,43 @@ workflow PREALNQC {
     if (!params.local_mode) {
       // make metadata and files match  
       ch_metadata.map { meta, metadata -> [[id: meta.sample, study_id: meta.study_id], metadata]}
-          .unique().set{ ch_metadata_sample }
+          .unique().set{ ch_meta_metadata }
           
-      ch_qc_files_sample.join(ch_metadata_sample)
+      ch_meta_metadata.join(ch_meta_qcfiles).join(MULTIQC_PARSE.out.multiqc_json)
       .set { ch_metadata_upload }
 
-      // generate payload
+      ch_metadata_upload.view()
+      // // generate payload
       PAYLOAD_QCMETRICS(
         ch_metadata_upload, '', '', CUSTOM_DUMPSOFTWAREVERSIONS.out.yml.collect()) 
 
-      SONG_SCORE_UPLOAD(PAYLOAD_QCMETRICS.out.payload_files)
+      // SONG_SCORE_UPLOAD(PAYLOAD_QCMETRICS.out.payload_files)
 
-      // cleanup
-      // Gather files to remove   
-      ch_files = Channel.empty()
-      ch_files = ch_files.mix(STAGE_INPUT.out.sample_files)
-      ch_files = ch_files.mix(STAGE_INPUT.out.analysis_meta)
-      ch_files = ch_files.mix(FASTQC.out.zip)
-      ch_files = ch_files.mix(FASTQC.out.html)
-      ch_files = ch_files.mix(CUTADAPT.out.log)
-      ch_files = ch_files.mix(CUTADAPT.out.reads)
-      ch_files.map{ meta, files -> files}
-      .unique()
-      .set { ch_files_to_remove1 }
+      // // cleanup
+      // // Gather files to remove   
+      // ch_files = Channel.empty()
+      // ch_files = ch_files.mix(STAGE_INPUT.out.sample_files)
+      // ch_files = ch_files.mix(STAGE_INPUT.out.analysis_meta)
+      // ch_files = ch_files.mix(FASTQC.out.zip)
+      // ch_files = ch_files.mix(FASTQC.out.html)
+      // ch_files = ch_files.mix(CUTADAPT.out.log)
+      // ch_files = ch_files.mix(CUTADAPT.out.reads)
+      // ch_files.map{ meta, files -> files}
+      // .unique()
+      // .set { ch_files_to_remove1 }
 
-      PAYLOAD_QCMETRICS.out.payload_files
-      .map {meta, payload, files -> files}
-      .unique()
-      .set { ch_files_to_remove2 }
+      // PAYLOAD_QCMETRICS.out.payload_files
+      // .map {meta, payload, files -> files}
+      // .unique()
+      // .set { ch_files_to_remove2 }
 
-      ch_files_to_remove = Channel.empty()
-      ch_files_to_remove = ch_files_to_remove.mix(STAGE_INPUT.out.input_files)
-      ch_files_to_remove = ch_files_to_remove.mix(MULTIQC.out.report)
-      ch_files_to_remove = ch_files_to_remove.mix(MULTIQC.out.data)
-      ch_files_to_remove = ch_files_to_remove.mix(ch_files_to_remove1)
-      ch_files_to_remove = ch_files_to_remove.mix(ch_files_to_remove2)
-      CLEANUP(ch_files_to_remove.unique().collect(), SONG_SCORE_UPLOAD.out.analysis_id)
+      // ch_files_to_remove = Channel.empty()
+      // ch_files_to_remove = ch_files_to_remove.mix(STAGE_INPUT.out.input_files)
+      // ch_files_to_remove = ch_files_to_remove.mix(MULTIQC.out.report)
+      // ch_files_to_remove = ch_files_to_remove.mix(MULTIQC.out.data)
+      // ch_files_to_remove = ch_files_to_remove.mix(ch_files_to_remove1)
+      // ch_files_to_remove = ch_files_to_remove.mix(ch_files_to_remove2)
+      // CLEANUP(ch_files_to_remove.unique().collect(), SONG_SCORE_UPLOAD.out.analysis_id)
     }
 
 }
