@@ -36,8 +36,9 @@ include { PAYLOAD_QCMETRICS } from '../modules/icgc-argo-workflows/payload/qcmet
 include { SONG_SCORE_UPLOAD } from '../subworkflows/icgc-argo-workflows/song_score_upload/main' 
 include { STAGE_INPUT       } from '../subworkflows/icgc-argo-workflows/stage_input/main'
 include { INPUT_CHECK       } from '../subworkflows/local/input_check'
-include { MULTIQC_PARSE     } from '../modules/local/multiqc_parse'
+//include { MULTIQC_PARSE     } from '../modules/local/multiqc_parse'
 include { CLEANUP           } from '../modules/icgc-argo-workflows/cleanup/main'
+include { PREP_METRICS      } from '../modules/icgc-argo-workflows/prep/metrics/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -115,7 +116,7 @@ workflow PREALNQC {
     .set{ ch_meta_qcfiles }
 
     // Parse the multiqc data
-    MULTIQC_PARSE (ch_meta_qcfiles, MULTIQC.out.data.collect())
+    PREP_METRICS (ch_meta_qcfiles, MULTIQC.out.data.collect())
 
     // Collect Software Versions
     CUSTOM_DUMPSOFTWAREVERSIONS (ch_versions.unique{ it.text }.collectFile(name: 'collated_versions.yml'))
@@ -126,7 +127,7 @@ workflow PREALNQC {
       ch_metadata.map { meta, metadata -> [[id: meta.sample, study_id: meta.study_id], metadata]}
           .unique().set{ ch_meta_metadata }
           
-      ch_meta_metadata.join(ch_meta_qcfiles).join(MULTIQC_PARSE.out.multiqc_json)
+      ch_meta_metadata.join(ch_meta_qcfiles).join(PREP_METRICS.out.metrics_json)
       .set { ch_metadata_upload }
 
       // // generate payload

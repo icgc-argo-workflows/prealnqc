@@ -14,12 +14,12 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 3. Download the pipeline and test it on a minimal dataset with a single command:
 
    ```bash
-   nextflow run icgc-argo-workflows/prealnqc -profile test,docker
+   nextflow run icgc-argo-workflows/prealnqc -profile test,standard
    ```
 
 4. Start running your own analysis!
    ```bash
-   nextflow run icgc-argo-workflows/prealnqc --input samplesheet.csv --outdir <OUTDIR> -profile docker
+   nextflow run icgc-argo-workflows/prealnqc --input samplesheet.csv --outdir <OUTDIR> -profile standard
    ```
 
 ## Pipeline summary
