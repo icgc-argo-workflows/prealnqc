@@ -111,7 +111,7 @@ workflow PREALNQC {
     // Group the QC files by sampleId
     ch_qc_files
     .transpose()
-    .map { meta, files -> [[id: meta.sample, study_id: meta.study_id], files] }
+    .map { meta, files -> [[id: meta.id], files] }
     .groupTuple()
     .set{ ch_meta_qcfiles }
 
