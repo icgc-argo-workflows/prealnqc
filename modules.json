@@ -16,7 +16,7 @@
                         "installed_by": ["modules"]
                     },
                     "prep/metrics": {
-                        "branch": "cutadapt_single_end",
+                        "branch": "main",
                         "git_sha": "27b616a007c54d0e059d39345b575e7e3801ef72",
                         "installed_by": ["modules"]
                     },
