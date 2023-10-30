@@ -102,28 +102,43 @@ def get_mqc_stats(multiqc, sampleId):
 
     # aggregate fastqc and cutadapt metrics into sample level based on multiqc data
     if mqc_stats.get('cutadapt'):
+      r_with_adapters_total = 0
+      r_processed_total = 0
+      r_trimmed_total = 0
       r1_with_adapters_total = 0
       r2_with_adapters_total = 0
       pairs_processed_total = 0
       pairs_trimmed_total = 0
+      
       for rg_metrics in mqc_stats['cutadapt']:
-        r1_with_adapters_total += float(rg_metrics['r1_with_adapters'])
-        r2_with_adapters_total += float(rg_metrics['r2_with_adapters'])
-        pairs_processed_total += float(rg_metrics['pairs_processed'])
-        pairs_trimmed_total += float(rg_metrics['pairs_processed'])*float(rg_metrics['percent_trimmed'])
+        if not rg_metrics.get('pairs_processed'):
+          r_with_adapters_total += float(rg_metrics['r_with_adapters'])
+          r_processed_total += float(rg_metrics['r_processed'])
+          r_trimmed_total += float(rg_metrics['r_processed'])*float(rg_metrics['percent_trimmed'])
+        else:
+          r1_with_adapters_total += float(rg_metrics['r1_with_adapters'])
+          r2_with_adapters_total += float(rg_metrics['r2_with_adapters'])
+          pairs_processed_total += float(rg_metrics['pairs_processed'])
+          pairs_trimmed_total += float(rg_metrics['pairs_processed'])*float(rg_metrics['percent_trimmed'])
 
-      mqc_stats['metrics'].update({
-        'r1_with_adapters_total': round(r1_with_adapters_total),
-        'r2_with_adapters_total': round(r2_with_adapters_total),
-        'percent_trimmed_total': round(pairs_trimmed_total / pairs_processed_total, 2)
-      })
+      if r_processed_total > 0:
+        mqc_stats['metrics'].update({
+          'r_with_adapters_total': round(r_with_adapters_total),
+          'percent_trimmed_total': round(r_trimmed_total / r_processed_total, 2)
+        })
+      else:
+        mqc_stats['metrics'].update({
+          'r1_with_adapters_total': round(r1_with_adapters_total),
+          'r2_with_adapters_total': round(r2_with_adapters_total),
+          'percent_trimmed_total': round(pairs_trimmed_total / pairs_processed_total, 2)
+        })
 
     if mqc_stats.get('fastqc'):
       total_sequences = []
       sequences_flagged_as_poor_quality = []
       gc_content = []
       qc_status = {}
-      qc_metrics = ['basic_statistics', 'per_base_sequence_quality', 'per_tile_sequence_quality', 
+      qc_metrics = ['basic_statistics', 'per_base_sequence_quality', 
                     'per_sequence_quality_scores', 'per_base_sequence_content', 'per_sequence_gc_content', 
                     'per_base_n_content', 'sequence_length_distribution', 'sequence_duplication_levels', 
                     'overrepresented_sequences', 'adapter_content']
