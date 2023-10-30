@@ -28,8 +28,22 @@ include { PREALNQC } from './workflows/prealnqc'
 //
 // WORKFLOW: Run main icgc-argo-workflows/prealnqc analysis pipeline
 //
-workflow {
+workflow ARGO_PREALNQC {
     PREALNQC ()
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    RUN ALL WORKFLOWS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+//
+// WORKFLOW: Execute a single named workflow for the pipeline
+// See: https://github.com/nf-core/rnaseq/issues/619
+//
+workflow {
+    ARGO_PREALNQC ()
 }
 
 /*
