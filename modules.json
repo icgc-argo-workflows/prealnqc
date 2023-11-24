@@ -11,8 +11,8 @@
                         "installed_by": ["modules"]
                     },
                     "payload/qcmetrics": {
-                        "branch": "add-payload_qc",
-                        "git_sha": "e77dfd3f5a27c355ed42633a896d868a00f89ecf",
+                        "branch": "main",
+                        "git_sha": "681bcc1563700f8322be1ba65305a85e169f0909",
                         "installed_by": ["modules"]
                     },
                     "prep/metrics": {

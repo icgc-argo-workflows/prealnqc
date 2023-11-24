@@ -111,7 +111,7 @@ workflow PREALNQC {
     // Group the QC files by sampleId
     ch_qc_files
     .transpose()
-    .map { meta, files -> [[id: meta.id], files] }
+    .map { meta, files -> [[id: meta.sample], files] }
     .groupTuple()
     .set{ ch_meta_qcfiles }
 
@@ -124,15 +124,15 @@ workflow PREALNQC {
     // upload QC files and metadata to song/score
     if (!params.local_mode) {
       // make metadata and files match  
-      ch_metadata.map { meta, metadata -> [[id: meta.sample, study_id: meta.study_id], metadata]}
+      ch_metadata.map { meta, metadata -> [[id: meta.sample], metadata]}
           .unique().set{ ch_meta_metadata }
-          
+
       ch_meta_metadata.join(ch_meta_qcfiles).join(PREP_METRICS.out.metrics_json)
       .set { ch_metadata_upload }
 
       // // generate payload
       PAYLOAD_QCMETRICS(
-        ch_metadata_upload, '', '', CUSTOM_DUMPSOFTWAREVERSIONS.out.yml.collect()) 
+        ch_metadata_upload, CUSTOM_DUMPSOFTWAREVERSIONS.out.yml.collect()) 
 
       // SONG_SCORE_UPLOAD(PAYLOAD_QCMETRICS.out.payload_files)
 
@@ -171,15 +171,15 @@ workflow PREALNQC {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow.onComplete {
-    if (params.email || params.email_on_fail) {
-        NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
-    }
-    NfcoreTemplate.summary(workflow, params, log)
-    if (params.hook_url) {
-        NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
-    }
-}
+// workflow.onComplete {
+//     if (params.email || params.email_on_fail) {
+//         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
+//     }
+//     NfcoreTemplate.summary(workflow, params, log)
+//     if (params.hook_url) {
+//         NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
+//     }
+// }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
