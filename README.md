@@ -32,17 +32,50 @@ Depending on where the input data are coming from and output data are sending to
 - (`RDPC` mode only) Generate SONG metadata for all collected QC metrics files and upload them to SONG/SCORE
 
 ### Inputs
-*Local mode*
-- input
+#### Local mode
+First, prepare a sample sheet with your input data that looks as following:
 
-*RDPC mode*
-- study_id
-- analysis_id
+`sample_sheet.csv`:
+
+```csv
+sample,lane,fastq_1,fastq_2,single_end(optional)
+TEST,C0HVY.2,C0HVY.2_r1.fq.gz,C0HVY.2_r2.fq.gz,false
+TEST,D0RE2.1,D0RE2.1_r1.fq.gz,D0RE2.1_r2.fq.gz
+TEST,D0RH0.2,D0RH0.2_r1.fq.gz,D0RH0.2_r2.fq.gz
+```
+
+Each row represents a read_group of sequencing reads from a sample.
+
+Now, you can run the workflow using:
+
+```bash
+nextflow run icgc-argo-workflows/prealnqc \
+   -profile <standard/singularity> \
+   --local_mode true \
+   --input sample_sheet.csv \
+   --outdir <OUTDIR>
+```
+
+#### RDPC mode
+You can run the workflow in RDPC mode by using:
+```bash
+nextflow run icgc-argo-workflows/prealnqc \
+  -profile <rdpc,rdpc_qa,rdpc_dev>,<standard/singularity> \
+  --local_mode false \
+  --study_id <STUDY_ID> \
+  --analysis_ids <ANALYSIS_IDS> \
+  --api_token <YOUR_API_TOKEN> \ 
+  --outdir <OUTDIR>
+```
+
+> **NOTE**
+> Please provide workflow parameters via the CLI or Nextflow `-params-file` option. 
 
 ### Outputs
-- Sequencing quality control metrics (FastQC)
-- Sequencing adapter removal, adapter contamination metrics (Cutadapt)
-- Overall pipeline statistics summaries (MultiQC)
+Upon completion, you can find the aggregated QC metrics under directory:
+```
+/path/to/outdir/prep_metrics/<sample_id>.argo_metrics.json
+```
 
 ## Credits
 

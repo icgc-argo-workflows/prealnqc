@@ -7,4 +7,5 @@ output/
 .DS_Store
 testing/
 testing*
+TEST*
 *.pyc

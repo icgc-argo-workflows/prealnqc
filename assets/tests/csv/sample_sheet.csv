@@ -1,0 +1,4 @@
+sample,lane,fastq_1,fastq_2
+TEST,C0HVY.2,https://raw.githubusercontent.com/icgc-argo-workflows/dna-seq-processing-wfs/main/tests/data/C0HVY.2_r1.fq.gz,https://raw.githubusercontent.com/icgc-argo-workflows/dna-seq-processing-wfs/main/tests/data/C0HVY.2_r2.fq.gz
+TEST,D0RE2.1,https://raw.githubusercontent.com/icgc-argo-workflows/dna-seq-processing-wfs/main/tests/data/D0RE2.1_r1.fq.gz,https://raw.githubusercontent.com/icgc-argo-workflows/dna-seq-processing-wfs/main/tests/data/D0RE2.1_r2.fq.gz
+TEST,D0RH0.2,https://raw.githubusercontent.com/icgc-argo-workflows/dna-seq-processing-wfs/main/tests/data/D0RH0.2_r1.fq.gz,https://raw.githubusercontent.com/icgc-argo-workflows/dna-seq-processing-wfs/main/tests/data/D0RH0.2_r2.fq.gz
