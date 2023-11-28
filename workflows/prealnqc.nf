@@ -28,26 +28,24 @@ ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.mu
     IMPORT LOCAL MODULES/SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { PAYLOAD_QCMETRICS } from '../modules/icgc-argo-workflows/payload/qcmetrics/main'
+include { INPUT_CHECK       } from '../subworkflows/local/input_check'
 
-//
-// SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
-//
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT ARGO MODULES/SUBWORKFLOWS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 include { SONG_SCORE_UPLOAD } from '../subworkflows/icgc-argo-workflows/song_score_upload/main' 
 include { STAGE_INPUT       } from '../subworkflows/icgc-argo-workflows/stage_input/main'
-include { INPUT_CHECK       } from '../subworkflows/local/input_check'
-//include { MULTIQC_PARSE     } from '../modules/local/multiqc_parse'
 include { CLEANUP           } from '../modules/icgc-argo-workflows/cleanup/main'
 include { PREP_METRICS      } from '../modules/icgc-argo-workflows/prep/metrics/main'
+include { PAYLOAD_QCMETRICS } from '../modules/icgc-argo-workflows/payload/qcmetrics/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
-//
-// MODULE: Installed directly from nf-core/modules
-//
 include { FASTQC                      } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT                    } from '../modules/nf-core/cutadapt/main'
 include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
