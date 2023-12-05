@@ -28,26 +28,24 @@ ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.mu
     IMPORT LOCAL MODULES/SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { PAYLOAD_QCMETRICS } from '../modules/icgc-argo-workflows/payload/qcmetrics/main'
+include { INPUT_CHECK       } from '../subworkflows/local/input_check'
 
-//
-// SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
-//
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT ARGO MODULES/SUBWORKFLOWS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 include { SONG_SCORE_UPLOAD } from '../subworkflows/icgc-argo-workflows/song_score_upload/main' 
 include { STAGE_INPUT       } from '../subworkflows/icgc-argo-workflows/stage_input/main'
-include { INPUT_CHECK       } from '../subworkflows/local/input_check'
-//include { MULTIQC_PARSE     } from '../modules/local/multiqc_parse'
 include { CLEANUP           } from '../modules/icgc-argo-workflows/cleanup/main'
 include { PREP_METRICS      } from '../modules/icgc-argo-workflows/prep/metrics/main'
+include { PAYLOAD_QCMETRICS } from '../modules/icgc-argo-workflows/payload/qcmetrics/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
-//
-// MODULE: Installed directly from nf-core/modules
-//
 include { FASTQC                      } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT                    } from '../modules/nf-core/cutadapt/main'
 include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
@@ -111,7 +109,7 @@ workflow PREALNQC {
     // Group the QC files by sampleId
     ch_qc_files
     .transpose()
-    .map { meta, files -> [[id: meta.id], files] }
+    .map { meta, files -> [[id: meta.sample], files] }
     .groupTuple()
     .set{ ch_meta_qcfiles }
 
@@ -124,15 +122,15 @@ workflow PREALNQC {
     // upload QC files and metadata to song/score
     if (!params.local_mode) {
       // make metadata and files match  
-      ch_metadata.map { meta, metadata -> [[id: meta.sample, study_id: meta.study_id], metadata]}
+      ch_metadata.map { meta, metadata -> [[id: meta.sample], metadata]}
           .unique().set{ ch_meta_metadata }
-          
+
       ch_meta_metadata.join(ch_meta_qcfiles).join(PREP_METRICS.out.metrics_json)
       .set { ch_metadata_upload }
 
       // // generate payload
       PAYLOAD_QCMETRICS(
-        ch_metadata_upload, '', '', CUSTOM_DUMPSOFTWAREVERSIONS.out.yml.collect()) 
+        ch_metadata_upload, CUSTOM_DUMPSOFTWAREVERSIONS.out.yml.collect()) 
 
       // SONG_SCORE_UPLOAD(PAYLOAD_QCMETRICS.out.payload_files)
 
@@ -171,15 +169,15 @@ workflow PREALNQC {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow.onComplete {
-    if (params.email || params.email_on_fail) {
-        NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
-    }
-    NfcoreTemplate.summary(workflow, params, log)
-    if (params.hook_url) {
-        NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
-    }
-}
+// workflow.onComplete {
+//     if (params.email || params.email_on_fail) {
+//         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
+//     }
+//     NfcoreTemplate.summary(workflow, params, log)
+//     if (params.hook_url) {
+//         NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
+//     }
+// }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
