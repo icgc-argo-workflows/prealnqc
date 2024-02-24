@@ -11,15 +11,20 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 
 2. Install [`Docker`](https://docs.docker.com/engine/installation/).
 
-3. Download the pipeline and test it on a minimal dataset with a single command:
+3. Test the workflow running in `Local` mode on a minimal dataset with a single command:
 
    ```bash
    nextflow run icgc-argo-workflows/prealnqc -profile test,standard
    ```
 
-4. Start running your own analysis!
+4. Test the workflow running in `RDPC` mode with a single command if you have access to `RDPC-QA` env and have your valid api_token available:
    ```bash
-   nextflow run icgc-argo-workflows/prealnqc --input samplesheet.csv --outdir <OUTDIR> -profile standard
+   nextflow run icgc-argo-workflows/prealnqc -profile rdpc_qa,test_rdpc_qa,standard --api_token <YOUR_API_TOKEN>
+   ```
+
+5. Start running your own analysis!
+   ```bash
+   nextflow run icgc-argo-workflows/prealnqc -profile standard --input samplesheet.csv --outdir <OUTDIR>
    ```
 
 ## Pipeline summary
