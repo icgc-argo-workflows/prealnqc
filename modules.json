@@ -6,8 +6,8 @@
             "modules": {
                 "icgc-argo-workflows": {
                     "checkinput": {
-                        "branch": "stage_input_fixB",
-                        "git_sha": "af24d4d6b59921ee048c304926897567ac956b00",
+                        "branch": "main",
+                        "git_sha": "e1f2b946b457eac191c0fa97ae1d159a15874c6b",
                         "installed_by": ["stage_input"]
                     },
                     "cleanup": {
@@ -26,12 +26,17 @@
                         "installed_by": ["modules"]
                     },
                     "prep/sample": {
-                        "branch": "stage_input_fixB",
-                        "git_sha": "f253d1e6d4dc5f6ac0e6440041ee7e55b8203e35",
+                        "branch": "main",
+                        "git_sha": "dbd4c7b18c86be15f2ca341085d90c0488545d53",
                         "installed_by": ["stage_input"]
                     },
+                    "samtools/index": {
+                        "branch": "main",
+                        "git_sha": "3f8cbdb457ed1b642b4f9b079850f2a92da9fcc0",
+                        "installed_by": ["modules", "stage_input"]
+                    },
                     "score/download": {
-                        "branch": "stage_input_fixB",
+                        "branch": "main",
                         "git_sha": "19ee48fdf1672ef9723e3093531be7ddea3e27ec",
                         "installed_by": ["song_score_download"]
                     },
@@ -41,7 +46,7 @@
                         "installed_by": ["song_score_upload"]
                     },
                     "song/get": {
-                        "branch": "stage_input_fixB",
+                        "branch": "main",
                         "git_sha": "19ee48fdf1672ef9723e3093531be7ddea3e27ec",
                         "installed_by": ["song_score_download"]
                     },
@@ -59,13 +64,18 @@
                         "branch": "main",
                         "git_sha": "19ee48fdf1672ef9723e3093531be7ddea3e27ec",
                         "installed_by": ["song_score_upload"]
+                    },
+                    "tabix/tabix": {
+                        "branch": "main",
+                        "git_sha": "e1f2b946b457eac191c0fa97ae1d159a15874c6b",
+                        "installed_by": ["stage_input"]
                     }
                 }
             },
             "subworkflows": {
                 "icgc-argo-workflows": {
                     "song_score_download": {
-                        "branch": "stage_input_fixB",
+                        "branch": "main",
                         "git_sha": "92aa620385099e94401c22b8633cc55ed34ca10e",
                         "installed_by": ["stage_input"]
                     },
@@ -75,8 +85,8 @@
                         "installed_by": ["subworkflows"]
                     },
                     "stage_input": {
-                        "branch": "stage_input_fixB",
-                        "git_sha": "af24d4d6b59921ee048c304926897567ac956b00",
+                        "branch": "main",
+                        "git_sha": "e9dfe346ae3334973f406be3051a1091cad1dca6",
                         "installed_by": ["subworkflows"]
                     }
                 }
