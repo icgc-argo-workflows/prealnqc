@@ -23,6 +23,12 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
    ```
 
 5. Start running your own analysis!
+   
+   If you are getting the input data from & sending output data to ICGC-ARGO data center, and you have valid api_token, you can run the workflow with:
+   ```bash
+   nextflow run icgc-argo-workflows/prealnqc -profile <rdpc,rdpc_qa,rdpc_dev>,standard --api_token <YOUR_API_TOKEN> --study_id <STUDY_ID> --analysis_ids <ANALYSIS_IDS>
+   ```
+   Otherwise, you can provide the path to the input data in `samplesheet.csv` and run the workflow with:
    ```bash
    nextflow run icgc-argo-workflows/prealnqc -profile standard --input samplesheet.csv --outdir <OUTDIR>
    ```
