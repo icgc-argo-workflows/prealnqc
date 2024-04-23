@@ -28,7 +28,7 @@ ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.mu
     IMPORT LOCAL MODULES/SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { INPUT_CHECK       } from '../subworkflows/local/input_check'
+// include { INPUT_CHECK       } from '../subworkflows/local/input_check'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,32 +61,16 @@ workflow PREALNQC {
 
     ch_versions = Channel.empty()
     
-    // Read in samplesheet, validate and stage input files
-    if (params.local_mode) {
-      if (params.input) {
-        ch_input = Channel.fromPath(params.input)
-        ch_input_sample = INPUT_CHECK (ch_input).reads
-      } 
-      else { exit 1, 'Input samplesheet must be specified for local mode!' }
-    } else if (params.study_id && params.analysis_ids) {
-      ch_study = Channel.of(params.study_id)
-      ch_analysis_ids = Channel.fromList(params.analysis_ids.split(',') as List)
-      ch_input = ch_study.combine(ch_analysis_ids)
-
-      STAGE_INPUT(ch_input)
-      ch_input_sample = STAGE_INPUT.out.sample_files
-      ch_metadata = STAGE_INPUT.out.meta_analysis
-      ch_versions = ch_versions.mix(STAGE_INPUT.out.versions)
-    
-    } else { exit 1, 'study_id & analysis_ids must be specified for rdpc mode!' }
-
+    // Stage input files
+    STAGE_INPUT(params.study_id, params.analysis_ids, params.input)
+    ch_versions = ch_versions.mix(STAGE_INPUT.out.versions)
 
     // MODULE: Run FastQC
-    FASTQC( ch_input_sample )
+    FASTQC( STAGE_INPUT.out.meta_files )
     ch_versions = ch_versions.mix(FASTQC.out.versions)
 
-    // MODULE: Perform cutadpat
-    CUTADAPT( ch_input_sample )
+    // // MODULE: Perform cutadpat
+    CUTADAPT( STAGE_INPUT.out.meta_files )
     ch_versions = ch_versions.mix(CUTADAPT.out.versions)
 
     // Gather QC files    
@@ -109,7 +93,7 @@ workflow PREALNQC {
     // Group the QC files by sampleId
     ch_qc_files
     .transpose()
-    .map { meta, files -> [[id: meta.sample], files] }
+    .map { meta, files -> [[id: meta.sample, study_id: meta.study_id], files] }
     .groupTuple()
     .set{ ch_meta_qcfiles }
 
@@ -118,49 +102,55 @@ workflow PREALNQC {
 
     // Collect Software Versions
     CUSTOM_DUMPSOFTWAREVERSIONS (ch_versions.unique{ it.text }.collectFile(name: 'collated_versions.yml'))
+    
+    // Combine channels to determine upload status and payload creation
+    // make metadata and files match  
+    STAGE_INPUT.out.meta_analysis.map { meta, metadata -> [[id: meta.sample, study_id: meta.study_id], metadata]}
+        .unique().set{ ch_meta_metadata }
+  
+    ch_meta_metadata.join(ch_meta_qcfiles).join(PREP_METRICS.out.metrics_json)
+    .set { ch_metadata_files }
 
-    // upload QC files and metadata to song/score
-    if (!params.local_mode) {
-      // make metadata and files match  
-      ch_metadata.map { meta, metadata -> [[id: meta.sample], metadata]}
-          .unique().set{ ch_meta_metadata }
+    STAGE_INPUT.out.upRdpc.combine(ch_metadata_files)
+    .map{upRdpc, meta, metadata, files, metrics -> 
+    [[id: meta.id, study_id: meta.study_id, upRdpc: upRdpc],
+      metadata, files, metrics]}
+    .branch{
+      upload: it[0].upRdpc
+    }.set{ch_metadata_files_status}
 
-      ch_meta_metadata.join(ch_meta_qcfiles).join(PREP_METRICS.out.metrics_json)
-      .set { ch_metadata_upload }
+    // generate payload
+    PAYLOAD_QCMETRICS(
+        ch_metadata_files_status.upload, CUSTOM_DUMPSOFTWAREVERSIONS.out.yml.collect()) 
 
-      // // generate payload
-      PAYLOAD_QCMETRICS(
-        ch_metadata_upload, CUSTOM_DUMPSOFTWAREVERSIONS.out.yml.collect()) 
+    SONG_SCORE_UPLOAD(PAYLOAD_QCMETRICS.out.payload_files)
 
-      // SONG_SCORE_UPLOAD(PAYLOAD_QCMETRICS.out.payload_files)
+    if (params.cleanup) {
+      // cleanup
+      // Gather files to remove   
+      ch_files = Channel.empty()
+      ch_files = ch_files.mix(STAGE_INPUT.out.meta_files)
+      ch_files = ch_files.mix(STAGE_INPUT.out.meta_analysis)
+      ch_files = ch_files.mix(FASTQC.out.zip)
+      ch_files = ch_files.mix(FASTQC.out.html)
+      ch_files = ch_files.mix(CUTADAPT.out.log)
+      ch_files = ch_files.mix(CUTADAPT.out.reads)
+      ch_files.map{ meta, files -> files}
+      .unique()
+      .set { ch_files_to_remove1 }
 
-      // // cleanup
-      // // Gather files to remove   
-      // ch_files = Channel.empty()
-      // ch_files = ch_files.mix(STAGE_INPUT.out.sample_files)
-      // ch_files = ch_files.mix(STAGE_INPUT.out.analysis_meta)
-      // ch_files = ch_files.mix(FASTQC.out.zip)
-      // ch_files = ch_files.mix(FASTQC.out.html)
-      // ch_files = ch_files.mix(CUTADAPT.out.log)
-      // ch_files = ch_files.mix(CUTADAPT.out.reads)
-      // ch_files.map{ meta, files -> files}
-      // .unique()
-      // .set { ch_files_to_remove1 }
+      PAYLOAD_QCMETRICS.out.payload_files
+      .map {meta, payload, files -> files}
+      .unique()
+      .set { ch_files_to_remove2 }
 
-      // PAYLOAD_QCMETRICS.out.payload_files
-      // .map {meta, payload, files -> files}
-      // .unique()
-      // .set { ch_files_to_remove2 }
-
-      // ch_files_to_remove = Channel.empty()
-      // ch_files_to_remove = ch_files_to_remove.mix(STAGE_INPUT.out.input_files)
-      // ch_files_to_remove = ch_files_to_remove.mix(MULTIQC.out.report)
-      // ch_files_to_remove = ch_files_to_remove.mix(MULTIQC.out.data)
-      // ch_files_to_remove = ch_files_to_remove.mix(ch_files_to_remove1)
-      // ch_files_to_remove = ch_files_to_remove.mix(ch_files_to_remove2)
-      // CLEANUP(ch_files_to_remove.unique().collect(), SONG_SCORE_UPLOAD.out.analysis_id)
+      ch_files_to_remove = Channel.empty()
+      ch_files_to_remove = ch_files_to_remove.mix(MULTIQC.out.report)
+      ch_files_to_remove = ch_files_to_remove.mix(MULTIQC.out.data)
+      ch_files_to_remove = ch_files_to_remove.mix(ch_files_to_remove1)
+      ch_files_to_remove = ch_files_to_remove.mix(ch_files_to_remove2)
+      CLEANUP(ch_files_to_remove.unique().collect(), SONG_SCORE_UPLOAD.out.analysis_id)
     }
-
 }
 
 /*
