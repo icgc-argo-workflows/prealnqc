@@ -37,12 +37,12 @@
                     },
                     "score/download": {
                         "branch": "main",
-                        "git_sha": "19ee48fdf1672ef9723e3093531be7ddea3e27ec",
+                        "git_sha": "9790430f3f71990b5a5fadcb7cf169d11b8c93c7",
                         "installed_by": ["song_score_download"]
                     },
                     "score/upload": {
                         "branch": "main",
-                        "git_sha": "19ee48fdf1672ef9723e3093531be7ddea3e27ec",
+                        "git_sha": "9790430f3f71990b5a5fadcb7cf169d11b8c93c7",
                         "installed_by": ["song_score_upload"]
                     },
                     "song/get": {
