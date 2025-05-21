@@ -93,7 +93,7 @@ workflow PREALNQC {
     // Group the QC files by sampleId
     ch_qc_files
     .transpose()
-    .map { meta, files -> [[id: meta.sample, study_id: meta.study_id], files] }
+    .map { meta, files -> [[id: meta.sample, sample: meta.sample, study_id: meta.study_id], files] }
     .groupTuple()
     .set{ ch_meta_qcfiles }
 
@@ -105,7 +105,7 @@ workflow PREALNQC {
     
     // Combine channels to determine upload status and payload creation
     // make metadata and files match  
-    STAGE_INPUT.out.meta_analysis.map { meta, metadata -> [[id: meta.sample, study_id: meta.study_id], metadata]}
+    STAGE_INPUT.out.meta_analysis.map { meta, metadata -> [[id: meta.sample, sample: meta.sample, study_id: meta.study_id], metadata]}
         .unique().set{ ch_meta_metadata }
   
     ch_meta_metadata.join(ch_meta_qcfiles).join(PREP_METRICS.out.metrics_json)

@@ -7,7 +7,7 @@
                 "icgc-argo-workflows": {
                     "checkinput": {
                         "branch": "main",
-                        "git_sha": "e1f2b946b457eac191c0fa97ae1d159a15874c6b",
+                        "git_sha": "d4806476507d2a3218341f470a165b609b2d1835",
                         "installed_by": ["stage_input"]
                     },
                     "cleanup": {
@@ -22,27 +22,27 @@
                     },
                     "prep/metrics": {
                         "branch": "main",
-                        "git_sha": "27b616a007c54d0e059d39345b575e7e3801ef72",
+                        "git_sha": "776aed82db95d2db324581aec0ed755e93d533b3",
                         "installed_by": ["modules"]
                     },
                     "prep/sample": {
                         "branch": "main",
-                        "git_sha": "dbd4c7b18c86be15f2ca341085d90c0488545d53",
+                        "git_sha": "768fb64c290fe906e96c195c67d3b99f8da2e049",
                         "installed_by": ["stage_input"]
                     },
                     "samtools/index": {
                         "branch": "main",
-                        "git_sha": "3f8cbdb457ed1b642b4f9b079850f2a92da9fcc0",
+                        "git_sha": "e1f2b946b457eac191c0fa97ae1d159a15874c6b",
                         "installed_by": ["modules", "stage_input"]
                     },
                     "score/download": {
                         "branch": "main",
-                        "git_sha": "19ee48fdf1672ef9723e3093531be7ddea3e27ec",
+                        "git_sha": "9790430f3f71990b5a5fadcb7cf169d11b8c93c7",
                         "installed_by": ["song_score_download"]
                     },
                     "score/upload": {
                         "branch": "main",
-                        "git_sha": "19ee48fdf1672ef9723e3093531be7ddea3e27ec",
+                        "git_sha": "9790430f3f71990b5a5fadcb7cf169d11b8c93c7",
                         "installed_by": ["song_score_upload"]
                     },
                     "song/get": {
@@ -86,7 +86,7 @@
                     },
                     "stage_input": {
                         "branch": "main",
-                        "git_sha": "e9dfe346ae3334973f406be3051a1091cad1dca6",
+                        "git_sha": "768fb64c290fe906e96c195c67d3b99f8da2e049",
                         "installed_by": ["subworkflows"]
                     }
                 }
